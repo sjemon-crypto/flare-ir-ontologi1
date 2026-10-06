@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FLARE-IR Micro-SIM: Ontologi</title>
+<style>
+:root{--n:#17324d;--b:#2f67a4;--t:#2f7e79;--g:#c59737;--bg:#f4f7f9;--d:#20262c}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--d)}
+.app{max-width:1000px;margin:auto;padding:18px}.top{display:flex;gap:16px;align-items:center;margin-bottom:14px}
+.brand{font-weight:800;color:var(--n)}.progress{height:9px;background:#dce5ea;flex:1;border-radius:20px;overflow:hidden}
+#bar{height:100%;background:var(--b);width:10%;transition:.25s}.counter{font-size:13px}
+.card{background:white;border-radius:20px;padding:28px;min-height:640px;box-shadow:0 8px 30px #17324d12}
+h1{color:var(--n);font-size:34px;margin:8px 0 18px}.eyebrow{color:var(--b);font-weight:800;text-transform:uppercase;font-size:13px;letter-spacing:.08em}
+.lead{font-size:19px;line-height:1.55}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+.imgbox{background:#f7f9fa;border-radius:16px;padding:12px;text-align:center}.imgbox img{max-width:100%;max-height:410px;border-radius:10px}
+.box,.quote{background:#f3f7f9;border-radius:14px;padding:17px;margin:13px 0}.box h2{color:var(--n);margin-top:0}
+.role{font-size:12px;font-weight:800;color:var(--b);text-transform:uppercase}
+.choices{display:grid;gap:10px;margin:18px 0}.choice{border:2px solid #dce5ea;background:#fff;border-radius:13px;padding:15px;text-align:left;font-size:16px;cursor:pointer}
+.choice:hover{border-color:var(--b)}.choice.selected{border-color:var(--b);background:#eef5fb}.choice.good{border-color:#2f7e79;background:#edf8f6}.choice.bad{border-color:#a64b4b;background:#fff2f2}
+.feedback{display:none;padding:16px;border-left:5px solid var(--g);background:#fff9e9;border-radius:10px;line-height:1.5}.feedback.show{display:block}
+.btnrow{display:flex;justify-content:space-between;gap:12px;margin-top:25px}.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;cursor:pointer}.primary{background:var(--n);color:#fff}.secondary{background:#e9eef2;color:var(--n)}.btn:disabled{opacity:.4;cursor:not-allowed}
+textarea{width:100%;min-height:160px;border:2px solid #dce5ea;border-radius:13px;padding:14px;font:inherit}.score{font-size:64px;font-weight:900;color:var(--n)}
+.privacy{font-size:13px;color:#65737d;text-align:center;padding:16px}.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.step{padding:14px;background:#f3f7f9;border-radius:12px;text-align:center}.step b{display:block;color:var(--n);margin-bottom:6px}
+@media(max-width:700px){.grid,.flow{grid-template-columns:1fr}.card{padding:20px}h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="app">
+ <div class="top"><div class="brand">FLARE-IR • MICRO-SIM</div><div class="progress"><div id="bar"></div></div><div class="counter" id="counter"></div></div>
+ <main class="card" id="stage"><p>Memuatkan Micro-SIM…</p></main>
+ <div class="privacy"><b>Privasi:</b> Tiada nama atau nombor matrik diminta. Respons tidak dihantar ke GitHub oleh aplikasi ini.</div>
+</div>
+<script>
+let page=0,score=0,answered={},evidence={dress:"",duck:"",q1:"",q2:"",q3:"",reflection:""};
+
+function nav(back, locked){
+ return '<div class="btnrow">'+(back?'<button class="btn secondary" onclick="prev()">← Kembali</button>':'<span></span>')+
+ (locked?'<button class="btn primary" id="nextBtn" disabled onclick="next()">Seterusnya →</button>':'<button class="btn primary" onclick="next()">Seterusnya →</button>')+'</div>';
+}
+const pages=[
+()=>'<div class="eyebrow">Misi 01 • Realiti</div><h1>REALITI: Apa yang anda lihat?</h1><p class="lead">Sebelum mempelajari definisi ontologi, anda akan mengalami sendiri satu persoalan asas: adakah semua orang memahami realiti dengan cara yang sama?</p><div class="grid"><div class="imgbox"><img src="dress.jpg" alt="The Dress"></div><div class="imgbox"><img src="duck-rabbit.png" alt="Duck Rabbit"></div></div><div class="box"><h2>Cabaran</h2><p>Perhatikan, buat keputusan dan fikirkan mengapa orang lain mungkin memberikan jawapan yang berbeza.</p></div>'+nav(false,false),
+
+()=>'<div class="eyebrow">Cetus • The Dress</div><h1>Apakah warna pakaian ini?</h1><div class="grid"><div class="imgbox"><img src="dress.jpg"></div><div><div class="choices"><button class="choice" onclick="perception(this,\'dress\')">Biru + Hitam</button><button class="choice" onclick="perception(this,\'dress\')">Putih + Emas</button></div><div class="feedback" id="fb">Menarik. Orang lain mungkin melihat warna yang berbeza walaupun melihat imej yang sama.<br><br><b>Persoalan penting:</b> bagaimanakah kita menentukan apa yang dianggap sebagai realiti?</div></div></div>'+nav(true,true),
+
+()=>'<div class="eyebrow">Cabaran • Duck–Rabbit</div><h1>Itik atau arnab?</h1><div class="grid"><div class="imgbox"><img src="duck-rabbit.png"></div><div><div class="choices"><button class="choice" onclick="perception(this,\'duck\')">Itik</button><button class="choice" onclick="perception(this,\'duck\')">Arnab</button><button class="choice" onclick="perception(this,\'duck\')">Saya boleh melihat kedua-duanya</button></div><div class="feedback" id="fb">Imej tidak berubah, tetapi tafsiran kita boleh berubah. <b>Jadi, yang manakah realiti?</b></div></div></div>'+nav(true,true),
+
+()=>'<div class="eyebrow">Konsep</div><h1>ONTOLOGI: Apakah sifat realiti?</h1><div class="box"><h2>Definisi kerja</h2><p>Ontologi merujuk kepada andaian penyelidik tentang <b>apa yang wujud, apa yang dianggap nyata dan apakah sifat realiti yang sedang dikaji.</b></p></div><div class="grid"><div class="step"><b>Satu / objektif?</b>Adakah realiti wujud secara bebas daripada tafsiran manusia?</div><div class="step"><b>Pelbagai / kontekstual?</b>Adakah realiti sosial dibentuk melalui pengalaman, tafsiran dan interaksi manusia?</div></div><p><small><b>Nota:</b> The Dress digunakan sebagai analogi pedagogi; ia bukan bukti bahawa semua realiti bersifat subjektif.</small></p>'+nav(true,false),
+
+()=>'<div class="eyebrow">Aplikasi • Hubungan Industri</div><h1>Satu organisasi. Pelbagai realiti?</h1><p class="lead">Anda menyiasat dakwaan: <b>“Hubungan pekerja–pengurusan di organisasi ini adalah baik.”</b></p><div class="quote"><span class="role">Pengurus HR</span><p>“Hubungan kami sangat baik. Kami hampir tidak pernah menerima aduan.”</p></div><div class="quote"><span class="role">Penyelia</span><p>“Jarang berlaku konflik antara pekerja dan pengurusan.”</p></div><div class="quote"><span class="role">Pekerja</span><p>“Kami jarang mengadu kerana bimbang akan menjejaskan pekerjaan.”</p></div><div class="quote"><span class="role">Wakil Kesatuan</span><p>“Ketiadaan aduan tidak bermaksud pekerja berpuas hati.”</p></div>'+nav(true,false),
+
+()=>'<div class="eyebrow">Keputusan Penyelidik</div><h1>Apakah kesimpulan awal anda?</h1><div class="choices"><button class="choice" onclick="quiz(this,false,\'q1\')">A. Pengurus HR mempunyai gambaran paling tepat.</button><button class="choice" onclick="quiz(this,false,\'q1\')">B. Pekerja mempunyai satu-satunya realiti sebenar.</button><button class="choice" onclick="quiz(this,false,\'q1\')">C. Salah seorang pasti memberikan maklumat tidak benar.</button><button class="choice" onclick="quiz(this,true,\'q1\')">D. Aktor yang berbeza mungkin mengalami dan mentafsir realiti organisasi secara berbeza.</button></div><div class="feedback" id="fb"></div>'+nav(true,true),
+
+()=>'<div class="eyebrow">Bezakan Realiti</div><h1>Yang manakah lebih dekat kepada realiti sosial yang ditafsirkan?</h1><div class="choices"><button class="choice" onclick="quiz(this,false,\'q2\')">A. Gaji asas pekerja ialah RM2,500 berdasarkan rekod penggajian.</button><button class="choice" onclick="quiz(this,true,\'q2\')">B. Pekerja merasakan layanan pengurusan tidak adil walaupun prosedur rasmi digunakan kepada semua.</button></div><div class="feedback" id="fb"></div>'+nav(true,true),
+
+()=>'<div class="eyebrow">Kes Akhir • Suara Pekerja</div><h1>Daripada ontologi kepada soalan penyelidikan</h1><div class="quote"><span class="role">Pengurus</span><p>“Tiada konflik di tempat kerja kami.”</p></div><div class="quote"><span class="role">Pekerja</span><p>“Kami tidak bersuara kerana takut.”</p></div><p class="lead">Soalan penyelidikan kualitatif manakah paling sesuai?</p><div class="choices"><button class="choice" onclick="quiz(this,false,\'q3\')">A. Berapakah bilangan konflik yang direkodkan?</button><button class="choice" onclick="quiz(this,false,\'q3\')">B. Adakah pengurus benar atau pekerja benar?</button><button class="choice" onclick="quiz(this,true,\'q3\')">C. Bagaimanakah pekerja dan pengurusan mentafsir serta mengalami konflik dan suara pekerja dalam organisasi?</button><button class="choice" onclick="quiz(this,false,\'q3\')">D. Adakah organisasi mempunyai polisi aduan rasmi?</button></div><div class="feedback" id="fb"></div>'+nav(true,true),
+
+()=>'<div class="eyebrow">Refleksi • 1 Minit</div><h1>Nyatakan pemikiran anda</h1><p class="lead">Dalam 1–2 ayat, mengapa <b>ketiadaan aduan pekerja</b> tidak semestinya membuktikan bahawa hubungan industri adalah harmoni?</p><textarea id="reflection" oninput="evidence.reflection=this.value" placeholder="Tulis refleksi anda di sini..."></textarea>'+nav(true,false),
+
+()=>'<div class="eyebrow">Rumusan</div><h1>Anda baru sahaja berfikir seperti penyelidik kualitatif.</h1><div class="score">'+score+'/3</div><p>Skor cabaran konsep anda.</p><div class="box"><h2>ONTOLOGI = Apakah realiti?</h2><p>Dalam pendekatan konstruktivis dan interpretivis, realiti sosial boleh bersifat <b>pelbagai, kontekstual</b> dan dibentuk melalui pengalaman serta interaksi manusia.</p></div><div class="flow"><div class="step"><b>ONTOLOGI</b>Apakah realiti?</div><div class="step"><b>EPISTEMOLOGI</b>Bagaimanakah kita mengetahuinya?</div><div class="step"><b>METODOLOGI</b>Bagaimanakah kajian dirancang?</div><div class="step"><b>KAEDAH</b>Bagaimanakah data diperoleh?</div></div><p class="lead"><b>Misi seterusnya:</b> Jika realiti boleh dialami secara berbeza, bagaimanakah penyelidik boleh mengetahuinya?</p><div class="btnrow"><button class="btn secondary" onclick="restart()">Ulang Micro-SIM</button><button class="btn primary" onclick="downloadEvidence()">Muat Turun Eviden Anonim</button></div>'
+];
+
+function render(){
+ document.getElementById('stage').innerHTML=pages[page]();
+ document.getElementById('bar').style.width=((page+1)/pages.length*100)+'%';
+ document.getElementById('counter').textContent=(page+1)+' / '+pages.length;
+}
+function next(){if(page<pages.length-1){page++;render()}}
+function prev(){if(page>0){page--;render()}}
+function perception(el,key){
+ document.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));
+ el.classList.add('selected'); evidence[key]=el.innerText;
+ document.getElementById('fb').classList.add('show'); document.getElementById('nextBtn').disabled=false;
+}
+function quiz(el,correct,key){
+ if(answered[key])return; answered[key]=true; evidence[key]=el.innerText;
+ document.querySelectorAll('.choice').forEach(x=>x.disabled=true);
+ el.classList.add(correct?'good':'bad'); if(correct)score++;
+ document.getElementById('fb').innerHTML=correct?'<b>✓ Tepat.</b> Perspektif yang berbeza boleh mencerminkan pengalaman dan makna sosial yang berbeza.':'<b>Belum tepat.</b> Fikirkan semula andaian tentang sifat realiti sosial.';
+ document.getElementById('fb').classList.add('show'); document.getElementById('nextBtn').disabled=false;
+}
+function restart(){page=0;score=0;answered={};evidence={dress:"",duck:"",q1:"",q2:"",q3:"",reflection:""};render()}
+function downloadEvidence(){
+ const txt='FLARE-IR MICRO-SIM: ONTOLOGI\n\nThe Dress: '+evidence.dress+'\nDuck–Rabbit: '+evidence.duck+'\n\nSkor: '+score+'/3\n\nRefleksi:\n'+(evidence.reflection||'-')+'\n\nTiada nama atau nombor matrik direkodkan.';
+ const blob=new Blob([txt],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);a.download='FLARE_IR_Ontologi_Eviden_Anonim.txt';a.click();URL.revokeObjectURL(a.href);
+}
+render();
+</script>
+</body></html>
